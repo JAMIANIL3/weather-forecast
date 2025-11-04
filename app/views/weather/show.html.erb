@@ -1,0 +1,52 @@
+<div class="container" style="max-width:720px;margin:2rem auto;">
+  <p><%= link_to "← Back", root_path %></p>
+  <h1>Weather Forecast</h1>
+
+  <p style="color:#555;margin-top:.5rem;">
+    <strong>Address:</strong> <%= @address %><br>
+    <strong>Location:</strong> <%= @place %><br>
+    <strong>ZIP/Postal:</strong> <%= @zip %>
+  </p>
+
+  <div style="margin:.5rem 0;">
+    <% if @from_cache %>
+      <span style="background:#e6f7ff;border:1px solid #91d5ff;padding:4px 8px;border-radius:6px;">Result from cache (last 30 min)</span>
+    <% else %>
+      <span style="background:#f6ffed;border:1px solid #b7eb8f;padding:4px 8px;border-radius:6px;">Fresh result</span>
+    <% end %>
+  </div>
+
+  <section style="margin-top:1rem;padding:1rem;border:1px solid #eee;border-radius:8px;">
+    <h2 style="margin-top:0;">Now</h2>
+    <p style="font-size:1.25rem;margin:.25rem 0;">
+      <strong><%= @forecast.dig(:current, :temp) %>°C</strong>
+      <% if @forecast.dig(:current, :description) %>
+        — <%= @forecast.dig(:current, :description).to_s.capitalize %>
+      <% end %>
+    </p>
+    <p style="color:#555;">
+      Feels like <%= @forecast.dig(:current, :feels_like) %>°C ·
+      Humidity <%= @forecast.dig(:current, :humidity) %>% ·
+      Wind <%= @forecast.dig(:current, :wind_speed) %> m/s
+    </p>
+  </section>
+
+  <section style="margin-top:1rem;padding:1rem;border:1px solid #eee;border-radius:8px;">
+    <h2 style="margin-top:0;">Today</h2>
+    <p>High: <strong><%= @forecast.dig(:today, :high) %>°C</strong>,
+       Low: <strong><%= @forecast.dig(:today, :low) %>°C</strong></p>
+  </section>
+
+  <section style="margin-top:1rem;padding:1rem;border:1px solid #eee;border-radius:8px;">
+    <h2 style="margin-top:0;">Next 3 Days</h2>
+    <ul>
+      <% @forecast[:next_days].each do |d| %>
+        <li>
+          <%= d[:date].strftime("%a, %d %b") %> —
+          High <%= d[:high] %>°C / Low <%= d[:low] %>°C
+          <% if d[:summary] %> — <%= d[:summary] %><% end %>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+</div>

@@ -49,3 +49,7 @@ Quick setup:
 If you're using Docker or another deployment environment, set the equivalent
 environment variables in your container/service configuration instead of
 committing them to the repo.
+
+## No Database
+No database is required because the system only needs temporary caching, not persistent storage.
+This aligns with proper separation of concerns and avoids unnecessary complexity for a read-only, stateless workload.
