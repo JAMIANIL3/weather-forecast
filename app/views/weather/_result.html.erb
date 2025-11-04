@@ -1,0 +1,32 @@
+<turbo-frame id="forecast_frame">
+  <% if error.present? %>
+    <p style="color:red;"><%= error %></p>
+  <% elsif forecast.blank? %>
+    <p style="color:gray;">No forecast available for this location.</p>
+  <% else %>
+    <p><strong>Location:</strong> <%= place %> (<%= zip %>)</p>
+
+    <% if from_cache %>
+      <span style="background:#e6f7ff;padding:4px 8px;border-radius:4px;">Cached ✅</span>
+    <% else %>
+      <span style="background:#eaffea;padding:4px 8px;border-radius:4px;">Fresh 🌟</span>
+    <% end %>
+
+    <h3>Current: <%= forecast[:current][:temp] %>°C</h3>
+    <p>Feels like: <%= forecast[:current][:feels_like] %>°C</p>
+
+    <h4>Today</h4>
+    <p>High: <%= forecast[:today][:high] %>°C | Low: <%= forecast[:today][:low] %>°C</p>
+
+    <h4>Next 3 Days</h4>
+    <ul>
+      <% forecast[:next_days].each do |day| %>
+        <li>
+          <%= day[:date].strftime("%a") %> — 
+          <%= day[:high] %>° / <%= day[:low] %>° 
+          (<%= day[:summary] %>)
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</turbo-frame>

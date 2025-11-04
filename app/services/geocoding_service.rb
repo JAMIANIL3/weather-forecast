@@ -24,7 +24,7 @@ class GeocodingService
       headers: { "User-Agent" => "rails-weather-demo/1.0 (educational)" }
     )
 
-    raise "Couldn't locate the address" unless resp.success? && resp.parsed_response.present?
+    raise StandardError, "Address not found" if resp.parsed_response.blank?
 
     rec = resp.parsed_response.first
     addr = rec["address"] || {}

@@ -1,14 +1,14 @@
-<div class="container" style="max-width:720px;margin:2rem auto;">
-  <h1>Weather Forecast</h1>
+<h2>Weather Forecast</h2>
 
-  <% if flash[:alert] %>
-    <div style="padding:8px;background:#ffe6e6;border:1px solid #ffaaaa;margin:1rem 0;"><%= flash[:alert] %></div>
-  <% end %>
+<%= form_with url: forecast_path, method: :get, data: { turbo_frame: "forecast_frame" } do %>
+  <div style="display:flex;gap:8px;">
+    <%= text_field_tag :address, params[:address], placeholder: "Enter City or ZIP", style: "flex:1;padding:10px;" %>
+    <%= submit_tag "Search", style: "padding:10px 16px;" %>
+  </div>
+<% end %>
 
-  <%= form_with url: forecast_path, method: :get, local: true do %>
-    <div style="display:flex;gap:8px;">
-      <%= text_field_tag :address, params[:address], placeholder: "Enter address (e.g., 500034 Hyderabad or 560001 or 'Times Square, NYC')", style: "flex:1;padding:10px;" %>
-      <%= submit_tag "Get Forecast", style: "padding:10px 16px;" %>
-    </div>
-  <% end %>
-</div>
+<hr>
+
+<turbo-frame id="forecast_frame">
+  <p style="color:gray;">Enter an address to see the weather 🌦️</p>
+</turbo-frame>
