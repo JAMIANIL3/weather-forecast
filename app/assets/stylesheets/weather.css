@@ -1,0 +1,91 @@
+/* Weather app styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.5;
+  color: #333;
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Form styles */
+form {
+  margin: 20px 0;
+}
+
+input[type="text"] {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+button, input[type="submit"] {
+  background: #0066cc;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover, input[type="submit"]:hover {
+  background: #0052a3;
+}
+
+/* Weather result styles */
+.weather-result {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.location-info {
+  margin-bottom: 20px;
+}
+
+.current-weather {
+  margin-bottom: 20px;
+}
+
+.today-forecast, .extended-forecast {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.error-message {
+  background: #fff5f5;
+  border-left: 4px solid #ff4d4f;
+  padding: 12px;
+  margin: 20px 0;
+}
+
+.no-data-message {
+  background: #f5f5f5;
+  padding: 12px;
+  margin: 20px 0;
+  border-radius: 4px;
+}
+
+ul {
+  list-style: none;
+  margin: 10px 0;
+}
+
+li {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+li:last-child {
+  border-bottom: none;
+}

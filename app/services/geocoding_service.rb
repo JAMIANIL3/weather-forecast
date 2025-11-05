@@ -1,19 +1,45 @@
 # frozen_string_literal: true
-require "httparty"
 
 class GeocodingService
+  include HttpClient
+
   NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
+  USER_AGENT = "rails-weather-demo/1.0 (educational)"
+
+  # Postal code patterns for various countries
+  POSTAL_PATTERNS = {
+    us: /\b\d{5}(?:-\d{4})?\b/,          # US ZIP (5) or ZIP+4 (5-4)
+    india: /\b[1-9]\d{5}\b/,             # India PIN (6 digits)
+    generic: /\b[A-Za-z0-9][A-Za-z0-9 \-]{1,8}[A-Za-z0-9]\b/ # Generic 3-10 chars
+  }.freeze
 
   def initialize(address)
-    @address = address.to_s
+    @address = address.to_s.strip
+    validate_input!
   end
 
   def call
-    # 1) If the user typed a postal code in the address, prefer that (US 5/9, India 6, generic 3-10 mix)
-    zip = extract_zip(@address)
+    location = geocode_address
+    format_location(location)
+  end
 
-    # 2) Geocode to get lat/lon and (if missing) postal code
-    resp = HTTParty.get(
+  # Class-level convenience wrapper that returns a ServiceResult
+  def self.call(address)
+    service = new(address)
+    data = service.call
+    ServiceResult.success(data)
+  rescue StandardError => e
+    ServiceResult.error(e.message)
+  end
+
+  private
+
+  def validate_input!
+    raise ArgumentError, "Address is required" if @address.blank?
+  end
+
+  def geocode_address
+    response = get_json(
       NOMINATIM_URL,
       query: {
         q: @address,
@@ -21,36 +47,30 @@ class GeocodingService
         addressdetails: 1,
         limit: 1
       },
-      headers: { "User-Agent" => "rails-weather-demo/1.0 (educational)" }
+      headers: { "User-Agent" => USER_AGENT }
     )
 
-    raise StandardError, "Address not found" if resp.parsed_response.blank?
+    raise "Address not found" if response.blank?
+    response.first
+  end
 
-    rec = resp.parsed_response.first
-    addr = rec["address"] || {}
-
+  def format_location(location)
+    address_details = location["address"] || {}
     {
-      zip: zip || addr["postcode"].to_s,
-      country: addr["country_code"].to_s.upcase,
-      lat: rec["lat"],
-      lon: rec["lon"],
-      display_name: rec["display_name"]
+      zip: extract_zip(@address) || address_details["postcode"].to_s,
+      country: address_details["country_code"].to_s.upcase,
+      lat: location["lat"],
+      lon: location["lon"],
+      display_name: location["display_name"]
     }
   end
 
-  private
-
   def extract_zip(text)
-    t = text.strip
-
-    # Common patterns
-    # US ZIP (5) or ZIP+4 (5-4)
-    return Regexp.last_match(0) if t =~ /\b\d{5}(?:-\d{4})?\b/
-    # India PIN (6 consecutive digits starting 1-9)
-    return Regexp.last_match(0) if t =~ /\b[1-9]\d{5}\b/
-    # Generic fallback: 3–10 alnum (captures many countries like UK/CA when typed cleanly)
-    return Regexp.last_match(0) if t =~ /\b[A-Za-z0-9][A-Za-z0-9 \-]{1,8}[A-Za-z0-9]\b/
-
+    POSTAL_PATTERNS.each_value do |pattern|
+      if (match = text.match(pattern))
+        return match[0]
+      end
+    end
     nil
   end
 end

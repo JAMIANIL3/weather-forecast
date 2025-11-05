@@ -1,32 +1,44 @@
 <turbo-frame id="forecast_frame">
-  <% if error.present? %>
-    <p style="color:red;"><%= error %></p>
+  <% if local_assigns[:error].present? %>
+    <div class="error-message">
+      <p style="color:red;"><%= local_assigns[:error] %></p>
+    </div>
   <% elsif forecast.blank? %>
-    <p style="color:gray;">No forecast available for this location.</p>
+    <div class="no-data-message">
+      <p style="color:gray;">No forecast available for this location.</p>
+    </div>
   <% else %>
-    <p><strong>Location:</strong> <%= place %> (<%= zip %>)</p>
+    <div class="weather-result">
+      <div class="location-info">
+        <p><strong>Location:</strong> <%= place %> (<%= zip %>)</p>
 
-    <% if from_cache %>
-      <span style="background:#e6f7ff;padding:4px 8px;border-radius:4px;">Cached ✅</span>
-    <% else %>
-      <span style="background:#eaffea;padding:4px 8px;border-radius:4px;">Fresh 🌟</span>
-    <% end %>
+        <span style="background:<%= from_cache ? '#e6f7ff' : '#eaffea' %>;padding:4px 8px;border-radius:4px;">
+          <%= from_cache ? 'Cached ✅' : 'Fresh 🌟' %>
+        </span>
+      </div>
 
-    <h3>Current: <%= forecast[:current][:temp] %>°C</h3>
-    <p>Feels like: <%= forecast[:current][:feels_like] %>°C</p>
+      <div class="current-weather">
+        <h3>Current: <%= forecast[:current][:temp] %>°C</h3>
+        <p>Feels like: <%= forecast[:current][:feels_like] %>°C</p>
+      </div>
 
-    <h4>Today</h4>
-    <p>High: <%= forecast[:today][:high] %>°C | Low: <%= forecast[:today][:low] %>°C</p>
+      <div class="today-forecast">
+        <h4>Today</h4>
+        <p>High: <%= forecast[:today][:high] %>°C | Low: <%= forecast[:today][:low] %>°C</p>
+      </div>
 
-    <h4>Next 3 Days</h4>
-    <ul>
-      <% forecast[:next_days].each do |day| %>
-        <li>
-          <%= day[:date].strftime("%a") %> — 
-          <%= day[:high] %>° / <%= day[:low] %>° 
-          (<%= day[:summary] %>)
-        </li>
-      <% end %>
-    </ul>
+      <div class="extended-forecast">
+        <h4>Next 3 Days</h4>
+        <ul>
+          <% forecast[:next_days].each do |day| %>
+            <li>
+              <%= day[:date].strftime("%a") %>
+              — <%= day[:high] %>° / <%= day[:low] %>°
+              (<%= day[:summary] %>)
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
   <% end %>
 </turbo-frame>
