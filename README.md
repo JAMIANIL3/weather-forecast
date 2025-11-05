@@ -1,27 +1,38 @@
-# README
+# Weather Forecast Application
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A Rails application that provides weather forecasts using OpenWeatherMap API and Nominatim geocoding service, with Redis caching for improved performance.
 
-Things you may want to cover:
+## Features
 
-* Ruby version
+- Location search using postal codes or addresses
+- Current weather conditions
+- Daily weather forecasts
+- Temperature units switching (metric/imperial)
+- Response caching with Redis
+- Graceful fallback when Redis is unavailable
+- Progressive Web App (PWA) support
 
-* System dependencies
+## Prerequisites
 
-* Configuration
+- Ruby 3.4.1 or higher
+- Rails 7.x
+- Redis server
+- OpenWeatherMap API key
 
-* Database creation
+## System Dependencies
 
-* Database initialization
+### Core Dependencies
+- Ruby on Rails
+- Redis for caching
+- HTTParty for API requests
+- WebMock (testing)
+- RSpec Rails (testing)
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+### Development Dependencies
+- Dotenv for environment management
+- Brakeman for security analysis
+- Bundler Audit for dependency scanning
+- RuboCop for code style enforcement
 
 ## Environment variables (.env)
 
@@ -50,6 +61,97 @@ If you're using Docker or another deployment environment, set the equivalent
 environment variables in your container/service configuration instead of
 committing them to the repo.
 
-## No Database
+## API Services
+
+### OpenWeatherMap API
+- Used for weather data
+- Endpoints:
+  - Current weather: `/data/2.5/weather`
+  - Forecast: `/data/2.5/forecast`
+- [API Documentation](https://openweathermap.org/api)
+
+### Nominatim Geocoding
+- Used for address/postal code lookup
+- Free, open-source geocoding service
+- [API Documentation](https://nominatim.org/release-docs/latest/api/Overview/)
+
+## Architecture
+
+### No Database Required
 No database is required because the system only needs temporary caching, not persistent storage.
 This aligns with proper separation of concerns and avoids unnecessary complexity for a read-only, stateless workload.
+
+### Caching Strategy
+- Weather data is cached in Redis for 30 minutes
+- Cache keys format: `weather:{postal_code}:v1`
+- Automatic fallback to direct API calls if Redis is unavailable
+
+### Core Components
+
+#### Controllers
+- `WeatherController`: Handles weather data requests and rendering
+
+#### Services
+- `WeatherService`: Interfaces with OpenWeatherMap API
+- `GeocodingService`: Handles location lookups via Nominatim
+- `ServiceResult`: Standardizes service responses
+
+#### Views
+- `weather/_result.html.erb`: Renders weather data
+- Progressive Web App assets in `views/pwa/`
+
+## Development Guidelines
+
+### Code Style
+- Follow Ruby style guide
+- Use 2 spaces for indentation
+- Keep methods focused and small
+- Add meaningful comments for complex logic
+
+### Testing
+- Write tests for new features
+- Maintain existing test coverage
+- Use WebMock for HTTP request stubs
+- Test error conditions and edge cases
+
+### Git Workflow
+1. Create feature branch
+2. Write tests
+3. Implement feature
+4. Submit pull request
+5. Address review feedback
+
+## Troubleshooting
+
+### Common Issues
+
+1. Redis Connection Errors
+   - Verify Redis is running
+   - Check REDIS_URL environment variable
+   - Ensure Redis port is available
+
+2. API Key Issues
+   - Verify OPENWEATHER_API_KEY is set
+   - Check API key validity
+   - Monitor API rate limits
+
+3. Geocoding Failures
+   - Verify address format
+   - Check Nominatim service status
+   - Review API response for error details
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## Maintainers
+
+- [@JAMIANIL3](https://github.com/JAMIANIL3)
