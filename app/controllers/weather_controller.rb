@@ -46,7 +46,8 @@ class WeatherController < ApplicationController
       forecast: weather_data,
       place: location[:display_name],
       zip: location[:zip],
-      from_cache: from_cache
+      from_cache: from_cache,
+      cache_key: cache_key
     )
   rescue Redis::BaseError => e
     # If the cache layer fails, log and fall back to a direct weather lookup.
@@ -62,7 +63,8 @@ class WeatherController < ApplicationController
       forecast: weather_result.data,
       place: location[:display_name],
       zip: location[:zip],
-      from_cache: false
+      from_cache: false,
+      cache_key: cache_key
     )
   end
 
@@ -80,13 +82,15 @@ class WeatherController < ApplicationController
       @zip = result.data[:zip]
       @from_cache = result.data[:from_cache]
       @error = nil
+      @cache_key = result.data[:cache_key]
 
       render partial: 'weather/result', locals: {
         forecast: @forecast,
         place: @place,
         zip: @zip,
         from_cache: @from_cache,
-        error: @error
+        error: @error,
+        cache_key: @cache_key
       }
     else
       @error = result.error
