@@ -50,38 +50,44 @@ class GeocodingService
 
   # Perform the request against Nominatim and return the first result entry
   # (as parsed JSON). Raises on no results so callers receive a clear error.
-  def geocode_address
-    query = {
-      q: @address,
-      format: 'json',
-      addressdetails: 1,
-      limit: 1
-    }
-    headers = { 'User-Agent' => USER_AGENT }
+    def geocode_address
+      query = {
+        q: @address,
+        format: "json",
+        addressdetails: 1,
+        limit: 1
+      }
+      headers = { "User-Agent" => USER_AGENT }
+
 
     # debug: output the outgoing request parameters in test runs to help WebMock matching
     if Rails.env.test?
       puts "[GeocodingService] Requesting #{NOMINATIM_URL} with query=#{query.inspect} headers=#{headers.inspect}"
     end
 
-    response = get_json(NOMINATIM_URL, query: query, headers: headers)
+      response = get_json(NOMINATIM_URL, query: query, headers: headers)
 
-    raise 'No results found' if response.blank?
-    response.first
-  end
+    raise "No results found for address: #{@address}" if response.blank? || response.empty?
+      result = response.first
+      
+      # Handle missing fields
+      result["address"] ||= {}
+      result
+    end
 
   # Convert the raw Nominatim result into the small hash shape the app uses.
   # @param location [Hash] raw parsed JSON from Nominatim
   # @return [Hash]
   def format_location(location)
-    address_details = location['address'] || {}
-    {
-      zip: extract_zip(@address) || address_details['postcode'].to_s,
-      country: address_details['country_code'].to_s.upcase,
-      lat: location['lat'].to_f,
-      lon: location['lon'].to_f,
-      display_name: location['display_name']
-    }
+    address_details = location["address"]
+      result = {
+      lat: location["lat"].to_f.round(4),
+      lon: location["lon"].to_f.round(4),
+        display_name: location["display_name"],
+        zip: address_details["postcode"] || extract_zip(@address)
+      }
+      result[:country] = address_details["country_code"].to_s.upcase if address_details["country_code"]
+      result
   end
 
   # Attempt to extract a postal code from the provided free-form text using

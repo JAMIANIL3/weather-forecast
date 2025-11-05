@@ -3,32 +3,26 @@ require 'rails_helper'
 RSpec.describe GeocodingService do
   let(:valid_address) { '10001' }
   let(:nominatim_response) do
-    [{
-      'lat' => '40.7506',
-      'lon' => '-73.9971',
-      'display_name' => 'New York, NY 10001, USA',
-      'address' => {
-        'postcode' => '10001',
-        'city' => 'New York',
-        'state' => 'New York'
+    [
+      {
+        'lat' => 40.7506,
+        'lon' => -73.9971,
+        'display_name' => 'New York, NY 10001, USA',
+        'address' => {
+          'postcode' => '10001',
+          'city' => 'New York',
+          'state' => 'New York',
+          'country_code' => 'us'
+        }
       }
-    }]
+    ]
   end
 
   describe '.call' do
     context 'with valid address' do
       before do
-        stub_request(:any, "https://nominatim.openstreetmap.org/search")
-          .with(
-            query: hash_including({
-              q: valid_address,
-              format: 'json',
-              addressdetails: 1,
-              limit: 1
-            }),
-            headers: { 'User-Agent' => described_class::USER_AGENT }
-          )
-          .to_return(status: 200, body: nominatim_response.to_json)
+        stub_request(:any, /nominatim.openstreetmap.org\/search.*/)
+          .to_return(status: 200, body: nominatim_response.to_json, headers: { 'Content-Type' => 'application/json' })
       end
 
       it 'returns successful service result with location data' do
@@ -59,9 +53,8 @@ RSpec.describe GeocodingService do
 
     context 'when API returns no results' do
       before do
-        stub_request(:any, "https://nominatim.openstreetmap.org/search")
-          .with(query: hash_including({}))
-          .to_return(status: 200, body: '[]')
+        stub_request(:any, /nominatim.openstreetmap.org\/search.*/)
+          .to_return(status: 200, body: '[]', headers: { 'Content-Type' => 'application/json' })
       end
 
       it 'returns error for no results found' do

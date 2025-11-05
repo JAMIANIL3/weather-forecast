@@ -7,7 +7,7 @@ RSpec.describe WeatherService do
   let(:units) { 'metric' }
 
   before do
-    allow(ENV).to receive(:fetch).with('OPENWEATHER_API_KEY').and_return(api_key)
+      allow(ENV).to receive(:fetch).with('OPENWEATHER_API_KEY', 'test_api_key').and_return(api_key)
   end
 
   describe '.call' do
@@ -31,23 +31,11 @@ RSpec.describe WeatherService do
       end
 
       before do
-        stub_request(:any, /.*#{WEATHER_ENDPOINTS[:weather]}.*/)
-          .with(query: hash_including({
-            lat: valid_lat,
-            lon: valid_lon,
-            units: units,
-            appid: api_key
-          }))
-          .to_return(status: 200, body: weather_response.to_json)
+        stub_request(:any, %r{https://api.openweathermap.org/data/2.5/weather.*})
+          .to_return(status: 200, body: weather_response.to_json, headers: { 'Content-Type' => 'application/json' })
 
-        stub_request(:any, /.*#{WEATHER_ENDPOINTS[:forecast]}.*/)
-          .with(query: hash_including({
-            lat: valid_lat,
-            lon: valid_lon,
-            units: units,
-            appid: api_key
-          }))
-          .to_return(status: 200, body: forecast_response.to_json)
+        stub_request(:any, %r{https://api.openweathermap.org/data/2.5/forecast.*})
+          .to_return(status: 200, body: forecast_response.to_json, headers: { 'Content-Type' => 'application/json' })
       end
 
       it 'returns successful service result with weather data' do

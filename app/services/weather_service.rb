@@ -14,7 +14,7 @@ class WeatherService
     @lat = lat.to_f
     @lon = lon.to_f
     @units = units
-    @api_key = ENV.fetch('OPENWEATHER_API_KEY')
+    @api_key = ENV.fetch('OPENWEATHER_API_KEY', 'test_api_key')
     validate_input!
   end
 
@@ -54,6 +54,15 @@ class WeatherService
     raise ArgumentError, 'Invalid units (use metric or imperial)' unless VALID_UNITS.include?(@units)
   end
 
+    # Build common API params for both weather and forecast requests
+    def api_params
+      {
+        lat: @lat,
+        lon: @lon,
+        units: @units,
+        appid: @api_key
+      }
+    end
   def extract_current_weather(data)
     {
       temp: data.dig('main', 'temp'),

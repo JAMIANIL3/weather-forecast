@@ -11,9 +11,10 @@ require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
 require 'webmock/rspec'
 
-# Configure WebMock
+# Configure WebMock: disallow real external network connections during tests
+# and only allow connections to localhost (for things like Capybara when needed).
 WebMock.enable!
-WebMock.allow_net_connect!(net_http_connect_on_start: false)
+WebMock.disable_net_connect!(allow_localhost: true)
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
