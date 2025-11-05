@@ -98,6 +98,117 @@ This aligns with proper separation of concerns and avoids unnecessary complexity
 
 #### Views
 - `weather/_result.html.erb`: Renders weather data
+
+## Object Decomposition & Design Patterns
+
+### Core Design Patterns
+
+#### Service Objects Pattern
+The application uses the Service Objects pattern to encapsulate business logic and external service interactions:
+
+- **BaseService**
+  - Role: Abstract service behavior template
+  - Pattern: Template Method & Concern
+  - Key Methods: `call`, `perform` (abstract)
+  - Features:
+    - Standardized validation flow
+    - Consistent error handling
+    - ActiveModel validations integration
+
+- **ServiceResult**
+  - Role: Result object encapsulation
+  - Pattern: Value Object
+  - States: success/error with optional payload
+  - Benefits:
+    - Type-safe return values
+    - Consistent error handling across services
+    - Clear separation of success/failure paths
+
+#### Adapter Pattern
+External API integrations use the Adapter pattern to normalize third-party responses:
+
+- **WeatherService**
+  - Adapts OpenWeatherMap responses
+  - Normalizes temperature units
+  - Provides consistent forecast structure
+  - Uses composition with HttpClient
+
+- **GeocodingService**
+  - Adapts Nominatim responses
+  - Normalizes postal codes across countries
+  - Provides location coordinate resolution
+  - Uses composition with HttpClient
+
+#### Concern Pattern
+Shared behaviors are extracted into concerns:
+
+- **HttpClient**
+  - Role: Standardized HTTP interaction
+  - Features:
+    - JSON parsing
+    - Error normalization
+    - Consistent headers
+    - Rate limiting support
+
+### Object Dependencies
+
+```
+WeatherController
+├── GeocodingService
+│   ├── HttpClient
+│   └── ServiceResult
+└── WeatherService
+    ├── HttpClient
+    └── ServiceResult
+```
+
+### Caching Strategy Pattern
+The application implements a Cache-Aside pattern with Redis:
+
+1. **Write-Around Caching**
+   - Weather data cached only on reads
+   - 30-minute TTL for freshness
+   - Zip code based partitioning
+
+2. **Circuit Breaker Pattern** (Implicit)
+   - Graceful Redis failure handling
+   - Automatic fallback to direct API calls
+   - Error logging and recovery
+
+### Progressive Enhancement Pattern
+The frontend implements progressive enhancement:
+
+1. **Base Layer**: Core HTML responses
+2. **Enhanced Layer**: JavaScript interactivity
+3. **PWA Layer**: Offline capabilities and push notifications
+
+### Error Handling Strategy
+
+1. **Service Layer**
+   - Validation errors → ServiceResult
+   - API errors → Normalized exceptions
+   - Network errors → Retries with backoff
+
+2. **Controller Layer**
+   - Graceful degradation
+   - User-friendly error messages
+   - Cache status transparency
+
+### Future Extension Points
+
+1. **Additional Weather Providers**
+   - WeatherService adapter pattern allows easy provider switching
+   - Common interface through ServiceResult
+
+2. **Enhanced Caching**
+   - Configurable TTLs
+   - Regional cache partitioning
+   - Background refresh capability
+
+3. **Location Services**
+   - Multiple geocoding provider support
+   - Reverse geocoding capabilities
+   - Location validation rules
 - Progressive Web App assets in `views/pwa/`
 
 ## Development Guidelines
