@@ -58,15 +58,24 @@ class WeatherController < ApplicationController
 
   def render_weather_result(result)
     if result.success?
+      # expose as instance variables so controller specs can inspect view_assigns
+      @forecast = result.data[:forecast]
+      @place = result.data[:place]
+      @zip = result.data[:zip]
+      @from_cache = result.data[:from_cache]
+      @error = nil
+
       render partial: "weather/result", locals: {
-        forecast: result.data[:forecast],
-        place: result.data[:place],
-        zip: result.data[:zip],
-        from_cache: result.data[:from_cache],
-        error: nil
+        forecast: @forecast,
+        place: @place,
+        zip: @zip,
+        from_cache: @from_cache,
+        error: @error
       }
     else
-      render partial: "weather/result", locals: { error: result.error }
+      @error = result.error
+      @forecast = @place = @zip = @from_cache = nil
+      render partial: "weather/result", locals: { error: @error }
     end
   end
 end

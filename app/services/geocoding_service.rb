@@ -39,18 +39,22 @@ class GeocodingService
   end
 
   def geocode_address
-    response = get_json(
-      NOMINATIM_URL,
-      query: {
-        q: @address,
-        format: "json",
-        addressdetails: 1,
-        limit: 1
-      },
-      headers: { "User-Agent" => USER_AGENT }
-    )
+    query = {
+      q: @address,
+      format: "json",
+      addressdetails: 1,
+      limit: 1
+    }
+    headers = { "User-Agent" => USER_AGENT }
 
-    raise "Address not found" if response.blank?
+    # debug: output the outgoing request parameters in test runs to help WebMock matching
+    if Rails.env.test?
+      puts "[GeocodingService] Requesting #{NOMINATIM_URL} with query=#{query.inspect} headers=#{headers.inspect}"
+    end
+
+    response = get_json(NOMINATIM_URL, query: query, headers: headers)
+
+    raise "No results found" if response.blank?
     response.first
   end
 
@@ -59,8 +63,8 @@ class GeocodingService
     {
       zip: extract_zip(@address) || address_details["postcode"].to_s,
       country: address_details["country_code"].to_s.upcase,
-      lat: location["lat"],
-      lon: location["lon"],
+      lat: location["lat"].to_f,
+      lon: location["lon"].to_f,
       display_name: location["display_name"]
     }
   end
