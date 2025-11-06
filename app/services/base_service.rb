@@ -1,10 +1,6 @@
 module BaseService
   # Service object mixin with validations. Implement `perform` and add
   # ActiveModel validations for input checking.
-  
-  extend ActiveSupport::Concern  included do
-    include ActiveModel::Validations
-  end
 
   class_methods do
     # Convenience class-level constructor + call so callers can use:
