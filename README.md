@@ -105,6 +105,61 @@ This aligns with proper separation of concerns and avoids unnecessary complexity
 
 ### Core Design Patterns
 
+#### Adapter Pattern (First-Class Pattern)
+
+External APIs are wrapped with adapters to convert third-party responses into normalized internal objects.
+
+WeatherService
+
+Adapts OpenWeather API response format
+
+Standardizes fields (current, today, next_days)
+
+Handles unit conversion & response cleaning
+
+Uses HttpClient for outgoing requests
+
+GeocodingService
+
+Adapts Nominatim address search response
+
+Normalizes coordinates & postal codes across countries
+
+Handles fallback extraction for postal codes
+
+Uses HttpClient for consistent HTTP behavior
+
+Benefits:
+
+Loose coupling between external APIs & application logic
+
+Easy to swap providers (e.g., Google Maps, AccuWeather)
+
+Standardized error & data structures
+
+#### Facade Pattern (Controller Integration Layer)
+
+The controller acts as a Facade, exposing a simple entry point for complex flows:
+
+For a given address:
+
+Geocode address → lat/long
+
+Fetch weather → with caching & API fallback
+
+Render normalized response
+
+WeatherService.fetch_with_cache(...)
+
+
+Benefits:
+
+Controllers stay lean & readable
+
+Shields controllers from caching / API / failure logic
+
+Makes high-level orchestration explicit & testable
+
 #### Service Objects Pattern
 The application uses the Service Objects pattern to encapsulate business logic and external service interactions:
 
@@ -125,21 +180,6 @@ The application uses the Service Objects pattern to encapsulate business logic a
     - Type-safe return values
     - Consistent error handling across services
     - Clear separation of success/failure paths
-
-#### Adapter Pattern
-External API integrations use the Adapter pattern to normalize third-party responses:
-
-- **WeatherService**
-  - Adapts OpenWeatherMap responses
-  - Normalizes temperature units
-  - Provides consistent forecast structure
-  - Uses composition with HttpClient
-
-- **GeocodingService**
-  - Adapts Nominatim responses
-  - Normalizes postal codes across countries
-  - Provides location coordinate resolution
-  - Uses composition with HttpClient
 
 #### Concern Pattern
 Shared behaviors are extracted into concerns:
