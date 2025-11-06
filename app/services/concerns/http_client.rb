@@ -8,6 +8,8 @@ module HttpClient
     include ActiveModel::Validations
   end
 
+  MAX_RETRIES = 2
+
   private
 
   # Perform a GET request and return the parsed JSON on success. Any non-2xx
@@ -18,8 +20,21 @@ module HttpClient
   # @return [Hash, Array] Parsed JSON structure
   # @raise [ApiError]
   def get_json(url, options = {})
-    validate_response!(self.class.get(url, options))
+    attempts = 0
+
+    begin
+      response = self.class.get(url, options)
+      validate_response!(response)
+    rescue Net::OpenTimeout, Net::ReadTimeout, SocketError => e
+      attempts += 1
+      Rails.logger.error("[HttpClient] Network error #{e.class}: #{e.message} → #{url}") if defined?(Rails)
+
+      retry if attempts <= MAX_RETRIES
+
+      raise ApiError, "Couldn't fetch the data at the moment"
+    end
   end
+
 
   # Inspect the HTTParty response and either return the parsed JSON or raise
   # an ApiError with a helpful message. Specific HTTP response codes are

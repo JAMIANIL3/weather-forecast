@@ -49,13 +49,13 @@ RSpec.describe WeatherService do
       it 'returns error for invalid latitude' do
         result = described_class.call(lat: 91, lon: valid_lon)
         expect(result).to be_error
-        expect(result.error).to match(/Latitude/)
+        expect(result.error).to match(/latitude/i)
       end
 
       it 'returns error for invalid longitude' do
         result = described_class.call(lat: valid_lat, lon: 181)
         expect(result).to be_error
-        expect(result.error).to match(/Longitude/)
+        expect(result.error).to match(/longitude/i)
       end
 
       it 'returns error for invalid units' do

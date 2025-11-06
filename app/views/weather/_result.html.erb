@@ -3,11 +3,15 @@
     <div class="error-message">
       <p style="color:red;"><%= local_assigns[:error] %></p>
     </div>
+
   <% elsif forecast.blank? %>
     <div class="no-data-message">
       <p style="color:gray;">No forecast available for this location.</p>
     </div>
+
   <% else %>
+    <% unit_symbol = (units == "imperial" ? "°F" : "°C") %>
+
     <div class="weather-result">
       <div class="location-info">
         <p><strong>Location:</strong> <%= place %> (<%= zip %>)</p>
@@ -24,13 +28,14 @@
       </div>
 
       <div class="current-weather">
-        <h3>Current: <%= forecast[:current][:temp] %>°C</h3>
-        <p>Feels like: <%= forecast[:current][:feels_like] %>°C</p>
+        <h3>Current: <%= forecast[:current][:temp] %><%= unit_symbol %></h3>
+        <p>Feels like: <%= forecast[:current][:feels_like] %><%= unit_symbol %></p>
       </div>
 
       <div class="today-forecast">
         <h4>Today</h4>
-        <p>High: <%= forecast[:today][:high] %>°C | Low: <%= forecast[:today][:low] %>°C</p>
+        <p>High: <%= forecast[:today][:high] %><%= unit_symbol %> |
+           Low: <%= forecast[:today][:low] %><%= unit_symbol %></p>
       </div>
 
       <div class="extended-forecast">
@@ -39,7 +44,8 @@
           <% forecast[:next_days].each do |day| %>
             <li>
               <%= day[:date].strftime("%a") %>
-              — <%= day[:high] %>° / <%= day[:low] %>°
+              — <%= day[:high] %><%= unit_symbol %> /
+                <%= day[:low] %><%= unit_symbol %>
               (<%= day[:summary] %>)
             </li>
           <% end %>

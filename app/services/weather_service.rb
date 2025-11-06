@@ -34,7 +34,7 @@ class WeatherService
   #   :from_cache => bool
   #   :cache_key => string
   def self.fetch_with_cache(lat:, lon:, zip:, units: "metric")
-    cache_key = "weather:#{zip}:v1"
+    cache_key = "weather:#{zip}:#{units}:v1"
     from_cache = true
 
     begin

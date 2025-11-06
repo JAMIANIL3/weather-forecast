@@ -22,12 +22,14 @@ class WeatherController < ApplicationController
     return geocoding_result if geocoding_result.error?
 
     location = geocoding_result.data
+    units = params[:units].presence_in(%w(metric imperial)) || "metric"
 
-    result = WeatherService.fetch_with_cache(lat:  location[:lat], lon:  location[:lon], zip:  location[:zip], units: "metric")
+    result = WeatherService.fetch_with_cache(lat:  location[:lat], lon:  location[:lon], zip:  location[:zip], units: units)
     return result if result.error?
 
     result.data[:place] = location[:display_name]
     result.data[:zip] = location[:zip]
+    result.data[:units] = units
     result
   end
 
@@ -44,7 +46,8 @@ class WeatherController < ApplicationController
         zip:        data[:zip],
         from_cache: data[:from_cache],
         error:      nil,
-        cache_key:  data[:cache_key]
+        cache_key:  data[:cache_key],
+        units: data[:units] || "metric"
       }
     else
       render partial: "weather/result", locals: { error: result.error }
