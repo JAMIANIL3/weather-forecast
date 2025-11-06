@@ -60,16 +60,16 @@ class GeocodingService
       headers = { "User-Agent" => USER_AGENT }
 
 
-    # debug: output the outgoing request parameters in test runs to help WebMock matching
-    if Rails.env.test?
-      puts "[GeocodingService] Requesting #{NOMINATIM_URL} with query=#{query.inspect} headers=#{headers.inspect}"
-    end
+      # debug: output the outgoing request parameters in test runs to help WebMock matching
+      if Rails.env.test?
+        puts "[GeocodingService] Requesting #{NOMINATIM_URL} with query=#{query.inspect} headers=#{headers.inspect}"
+      end
 
       response = get_json(NOMINATIM_URL, query: query, headers: headers)
 
-    raise "No results found for address: #{@address}" if response.blank? || response.empty?
+      raise "No results found for address: #{@address}" if response.blank? || response.empty?
       result = response.first
-      
+        
       # Handle missing fields
       result["address"] ||= {}
       result
